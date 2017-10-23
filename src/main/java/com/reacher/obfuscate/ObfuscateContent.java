@@ -1,9 +1,9 @@
 package com.reacher.obfuscate;
 
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
-import com.reacher.utils.CSVFileUtil;
+import com.reacher.utils.CsvFileUtil;
 import com.reacher.utils.MD5Util;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvWriter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,9 +33,9 @@ public class ObfuscateContent {
      */
     public void obfuscate(String inputFilename, String outputFilename, String[] columns, String encoding) throws Exception {
 
-        CSVReader reader = CSVFileUtil.reader(inputFilename, encoding);
+        CsvParser parser = CsvFileUtil.getParser(inputFilename, encoding);
 
-        String[] datas = reader.readNext();//获取表头
+        String[] datas = parser.parseNext();;//获取表头
         Map<String, Integer> titleToIndexMap = new HashMap<String, Integer>();
         for (int i = 0; i < datas.length; ++i) {
             titleToIndexMap.put(datas[i], i);
@@ -44,18 +44,20 @@ public class ObfuscateContent {
         if (null != validate) {
             throw new Exception("要转码的列[" + validate + "]不存");
         }
-        CSVWriter writer = CSVFileUtil.writer(outputFilename, encoding);
-        writer.writeNext(datas);//写入表头
+        CsvWriter writer = CsvFileUtil.getWriter(outputFilename, encoding);
+        writer.writeRow(datas);//写入表头
 
-        CSVWriter obfuscateMappings = CSVFileUtil.writer(outputFilename.replaceAll("\\.csv", "") + "-mappings.csv", encoding);
-        obfuscateMappings.writeNext(this.buildMappingsTitle(columns));//写表头
+        CsvWriter obfuscateMappings = CsvFileUtil.getWriter(outputFilename.replaceAll("\\.csv", "") + "-mappings.csv", encoding);
+        obfuscateMappings.writeRow(this.buildMappingsTitle(columns));//写表头
 
-        while ((datas = reader.readNext()) != null) {
-            obfuscateMappings.writeNext(obfuscate(datas, columns, titleToIndexMap));
-            writer.writeNext(datas);
+        while ((datas = parser.parseNext()) != null) {
+            obfuscateMappings.writeRow(obfuscate(datas, columns, titleToIndexMap));
+            writer.writeRow(datas);
         }
+        parser.stopParsing();
+        writer.close();
+        obfuscateMappings.close();
 
-        CSVFileUtil.close(reader, writer, obfuscateMappings);
     }
 
     /**
