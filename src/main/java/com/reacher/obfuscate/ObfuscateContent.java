@@ -35,14 +35,15 @@ public class ObfuscateContent {
 
         CsvParser parser = CsvFileUtil.getParser(inputFilename, encoding);
 
-        String[] datas = parser.parseNext();;//获取表头
+        //获取表头
+        String[] datas = parser.parseNext();
         Map<String, Integer> titleToIndexMap = new HashMap<String, Integer>();
         for (int i = 0; i < datas.length; ++i) {
             titleToIndexMap.put(datas[i], i);
         }
         String validate = this.validate(titleToIndexMap, columns);
         if (null != validate) {
-            throw new Exception("要转码的列[" + validate + "]不存");
+            throw new Exception("要转码的列[" + validate + "]不存在");
         }
         CsvWriter writer = CsvFileUtil.getWriter(outputFilename, encoding);
         writer.writeRow(datas);//写入表头
