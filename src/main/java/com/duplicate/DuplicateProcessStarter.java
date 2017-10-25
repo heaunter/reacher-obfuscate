@@ -2,12 +2,12 @@ package com.duplicate;
 
 import com.duplicate.spi.DuplicateProcessor;
 import com.google.common.collect.Multimap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Scanner;
 
 /**
@@ -16,10 +16,13 @@ import java.util.Scanner;
  */
 public class DuplicateProcessStarter {
 
-    /** logger */
-    private static final Logger logger = LoggerFactory.getLogger(DuplicateProcessStarter.class);
 
-    public static void main(String[] args) throws FileNotFoundException {
+    /*
+    数据处理完后输出MUltiMap里的状况。
+    比如，一共处理了多少records，MultiMap里有多少key（就是Unique线索数），MultiMap里有多少entry对应的list只有一个entry（无重复）；
+    把他们删掉后输出剩下的（有重复）的records。
+    输出可以有以下columns：输入的columns（电话+公司），id。*/
+    public static void main(String[] args) throws IOException {
 
         Scanner scanner = new Scanner(System.in);
 
@@ -41,14 +44,24 @@ public class DuplicateProcessStarter {
         DuplicateProcessor duplicateProcessor = new DuplicateProcessor();
         Multimap<String, Object> multimap = duplicateProcessor.processDuplicates(stream, encoding, columns);
         System.out.println("处理后的数据集合：" + multimap.asMap());
-        System.out.println("总处理数据：" + multimap.values().size());
+        System.out.println("总数据条数：" + multimap.values().size());
+        System.out.println("unique线索条数：" + multimap.keySet().size());
 
-//      数据处理完后输出MUltiMap里的状况。
-//      比如，一共处理了多少records，MultiMap里有多少key（就是Unique线索数），MultiMap里有多少entry对应的list只有一个entry（无重复）；
-//      把他们删掉后输出剩下的（有重复）的records。
-//      输出可以有以下columns：输入的columns（电话+公司），id。
+        int uniqueSingle = 0;
 
-        duplicateProcessor.outputProcessResult(multimap, outputFilename);
+        Iterator<String> keyIt = multimap.keySet().iterator();
+        while (keyIt.hasNext()) {
+            String key = keyIt.next();
+            Collection<Object> objects = multimap.get(key);
+            if (objects.size() == 1) {
+                ++uniqueSingle;
+                keyIt.remove();
+            }
+        }
+        System.out.println("single线索条数：" + uniqueSingle);
+
+        duplicateProcessor.outputProcessResult(multimap, outputFilename, encoding);
+        System.out.println("文件输出到：" + outputFilename);
 
     }
 }
