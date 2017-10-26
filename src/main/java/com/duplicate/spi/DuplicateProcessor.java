@@ -60,9 +60,10 @@ public class DuplicateProcessor {
         }
     }
 
-    public void outputProcessResult(Multimap<String, Object> multimaps, String outputFile, String encoding) throws IOException {
+    public void outputProcessResult(Multimap<String, Object> multimaps, String[] columns, String outputFile, String encoding) throws IOException {
         CsvWriterSettings settings = new CsvWriterSettings();
         CsvWriter writer = new CsvWriter(new File(outputFile), encoding, settings);
+        writer.writeHeaders(ArrayUtils.add(columns, "ID"));
         Iterator<String> keyIt = multimaps.keySet().iterator();
         while (keyIt.hasNext()) {
             String key = keyIt.next();

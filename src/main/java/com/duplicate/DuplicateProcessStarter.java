@@ -24,10 +24,13 @@ public class DuplicateProcessStarter {
     输出可以有以下columns：输入的columns（电话+公司），id。*/
     public static void main(String[] args) throws IOException {
 
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in,"utf-8");
 
         System.out.print("请输入源文件的绝对路径(csv格式): ");
         String inputFilename = scanner.next();
+
+        System.out.print("请输入源文件的编码格式: ");
+        String encoding = scanner.next();
 
         System.out.print("请输入需要查重的列名(请以都#隔开): ");
         String columnsInput = scanner.next();
@@ -35,9 +38,6 @@ public class DuplicateProcessStarter {
 
         System.out.print("请输入输出文件的绝对路径(csv格式): ");
         String outputFilename = scanner.next();
-
-        System.out.print("请输入源文件的编码格式: ");
-        String encoding = scanner.next();
 
         InputStream stream = new FileInputStream(inputFilename);
 
@@ -60,7 +60,7 @@ public class DuplicateProcessStarter {
         }
         System.out.println("single线索条数：" + uniqueSingle);
 
-        duplicateProcessor.outputProcessResult(multimap, outputFilename, encoding);
+        duplicateProcessor.outputProcessResult(multimap,columns, outputFilename, encoding);
         System.out.println("文件输出到：" + outputFilename);
 
     }

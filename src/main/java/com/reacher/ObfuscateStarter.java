@@ -10,7 +10,7 @@ public class ObfuscateStarter {
 
     public static void main(String[] args) throws Exception {
 
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in,"utf-8");
 
         System.out.print("请输入源文件的绝对路径(csv格式): ");
         String inputFilename = scanner.next();
