@@ -26,6 +26,8 @@ public class DuplicateProcessor {
 
     private final static String DEFAULT_CHARSET = "gb18130";
 
+    private final static String DEFAULT_SEPARATOR = "&#-";
+
 
     public Multimap<String, Object> processDuplicates(InputStream inputStream, String[] columns) {
         return processDuplicates(inputStream, DEFAULT_CHARSET, columns);
@@ -55,7 +57,7 @@ public class DuplicateProcessor {
         Record record;
         while ((record = parser.parseNextRecord()) != null) {
             String[] values = record.getValues(columns);
-            String key = StringUtils.join(values, "-");
+            String key = StringUtils.join(values, DEFAULT_SEPARATOR);
             maps.put(key, record.getValue("ID", String.class));
         }
     }
@@ -69,7 +71,7 @@ public class DuplicateProcessor {
             String key = keyIt.next();
             Collection<Object> objects = multimaps.get(key);
             for (Object obj : objects) {
-                writer.writeRow(ArrayUtils.add(key.split("-"), obj));
+                writer.writeRow(ArrayUtils.add(key.split(DEFAULT_SEPARATOR), obj));
             }
         }
         writer.flush();
