@@ -24,13 +24,20 @@ public class DuplicateProcessStarter {
     输出可以有以下columns：输入的columns（电话+公司），id。*/
     public static void main(String[] args) throws IOException {
 
-        Scanner scanner = new Scanner(System.in,"utf-8");
+        Scanner scanner = new Scanner(System.in, "utf-8");
 
         System.out.print("请输入源文件的绝对路径(csv格式): ");
         String inputFilename = scanner.next();
 
-        System.out.print("请输入源文件的编码格式: ");
+        InputStream stream = new FileInputStream(inputFilename);
+
+        System.out.print("请输入源文件的编码格式(1:gb18030;2:utf-8): ");
         String encoding = scanner.next();
+        if ("1".equals(encoding)) {
+            encoding = "gb18030";
+        } else {
+            encoding = "utf-8";
+        }
 
         System.out.print("请输入需要查重的列名(请以都#隔开): ");
         String columnsInput = scanner.next();
@@ -38,8 +45,6 @@ public class DuplicateProcessStarter {
 
         System.out.print("请输入输出文件的绝对路径(csv格式): ");
         String outputFilename = scanner.next();
-
-        InputStream stream = new FileInputStream(inputFilename);
 
         DuplicateProcessor duplicateProcessor = new DuplicateProcessor();
         Multimap<String, Object> multimap = duplicateProcessor.processDuplicates(stream, encoding, columns);
@@ -60,8 +65,8 @@ public class DuplicateProcessStarter {
         }
         System.out.println("single线索条数：" + uniqueSingle);
 
-        duplicateProcessor.outputProcessResult(multimap,columns, outputFilename, encoding);
-        System.out.println("文件输出到：" + outputFilename);
+        duplicateProcessor.outputProcessResult(multimap, columns, outputFilename, encoding);
+        System.out.println("重复数据文件输出到：" + outputFilename);
 
     }
 }
